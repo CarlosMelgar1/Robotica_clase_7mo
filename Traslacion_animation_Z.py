@@ -100,30 +100,33 @@ p7 = [7,2,3]
 p8 = [0,2,3]
 box_init = np.array([p1,p2,p3,p4,p5,p6,p7,p8], dtype=float)
 
-# --- Composición de rotaciones ---
-def compose_R(ax_deg=0, ay_deg=0, az_deg=0):
-    return RotZ(az_deg) @ RotY(ay_deg) @ RotX(ax_deg)
-
-# --- Animación de la caja ---
-def animate_box(angle_to=25, angle_step=1, pause_s=0.02):
-    angle = 0
-    while angle <= angle_to:
+# --- Animación de traslación ---
+def animate_box_trans(max_shift=15, step=1, pause_s=0.05):
+    move = 0
+    while move <= max_shift:
         ax.cla()
-        setaxis(-5,12,-5,12,-5,12)
+        setaxis(-5, 30, -5, 12, -5, 12)   # rango de ejes, X extendido
         fix_system(axis_length=10, linewidth=2)
 
-        R = compose_R(az_deg=angle)   # rotación en Z
-        t = (0,0,0)                   # traslación (aquí en cero)
+        # No hay rotación, solo identidad
+        R = np.eye(3)
+
+        # Traslación
+        t = (0, 0, move)
+
+        # Matriz homogénea
         T = build_SE3(R, t)
 
+        # Aplicar a la caja
         box_tf = apply_SE3(box_init, T)
 
-        drawBox(box_tf, color='green', show_points=False, linewidth=2.0)
+        # Dibujar caja
+        drawBox(box_tf, color='yellow', show_points=False, linewidth=2.0)
         set_equal_aspect()
         plt.draw()
         plt.pause(pause_s)
-        angle += angle_step
+        move += step
 
 # --- Ejecutar ---
-animate_box(angle_to=25, angle_step=1, pause_s=0.02)
+animate_box_trans(max_shift=15, step=1, pause_s=0.05)
 plt.show()
